@@ -1,0 +1,30 @@
+@import "tailwindcss";
+/* :root {
+  box-sizing: border-box;
+} */
+@theme {
+  --font-quicksand: "Quicksand", serif;
+  --font-road-rage: "Road Rage", serif;
+  --font-myeonjo: "Nanum Myeongjo", serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+.chat-area::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.chat-area::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.chat-area::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
