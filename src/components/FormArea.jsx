@@ -15,7 +15,7 @@ const FormArea = () => {
     lastUserMessage,
   } = useChatContext();
   return (
-    <div className="relative h-[150px] w-full rounded-4xl bg-indigo-100/55 px-5 pt-6 pb-16 shadow-md">
+    <div className="relative min-h-[150px] w-full rounded-4xl bg-indigo-100/55 px-5 pt-4 pb-16 shadow-md">
       <form onSubmit={handleSend}>
         <div className="ml-auto flex w-full max-w-2xl items-center">
           <div

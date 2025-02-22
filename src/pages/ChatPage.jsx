@@ -11,14 +11,13 @@ const ChatInterface = () => {
     useChatContext();
   return (
     <main className="flex h-screen min-h-[600px] bg-gray-100">
-      <aside className="absolute hidden h-full w-xs bg-indigo-100 lg:static lg:block"></aside>
       <section className="flex-1">
         <div className="mx-auto flex h-full max-w-5xl flex-col px-4 pb-4">
           <h1 className="font-road-rage top-0 mb-2 h-[100px] w-full pt-5 text-center text-5xl text-indigo-600">
             AI Text Processor
           </h1>
 
-          <div className="mt-auto flex flex-1 flex-col gap-10">
+          <div className="mt-auto flex flex-1 flex-col gap-5 md:gap-10">
             <div
               ref={chatContainerRef}
               className="chat-area max-h-[calc(100vh-300px)] flex-1 space-y-20 overflow-y-auto rounded-2xl bg-white p-8 shadow-md"
