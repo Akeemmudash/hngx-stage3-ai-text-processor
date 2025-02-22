@@ -1,30 +1,14 @@
-import React, { useState } from "react";
-import SelectButton from "../components/SelectButton";
+import React from "react";
 import { motion } from "framer-motion";
 import astronaut from "../assets/astronaut.svg";
 
-import { translateLang } from "../utils/helpers";
-import { useScrollToMessage } from "../hooks/useScrollToMessage";
-import useProcessMessage from "../hooks/useProcessMessage";
+import { mapLangCode } from "../utils/helpers";
+import FormArea from "../components/FormArea";
+import { useChatContext } from "../hooks/useChatContext";
 
 const ChatInterface = () => {
-  const [messages, setMessages] = useState([]);
-  const {
-    summarize,
-    translate,
-    handleInputText,
-    handleSend,
-    handleKeyDown,
-    selectedLangOption,
-    setSelectedLangOption,
-    inputRef,
-    canTranslate,
-    canSummarize,
-    lastUserMessage,
-  } = useProcessMessage(messages, setMessages);
-  const responseMsgs = messages.filter((msg) => msg.type === "response");
-  const chatContainerRef = useScrollToMessage(messages);
-
+  const { chatContainerRef, messages, canSummarize, summarize, responseMsgs } =
+    useChatContext();
   return (
     <main className="flex h-screen min-h-[600px] bg-gray-100">
       <aside className="absolute hidden h-full w-xs bg-indigo-100 lg:static lg:block"></aside>
@@ -64,7 +48,7 @@ const ChatInterface = () => {
                             Detected language:{" "}
                             <span className="font-medium">
                               {msg.detectedLanguage !== ""
-                                ? translateLang(msg.detectedLanguage)
+                                ? mapLangCode(msg.detectedLanguage)
                                 : "Loading"}
                             </span>
                           </p>
@@ -93,7 +77,7 @@ const ChatInterface = () => {
                                 ) : responseMsg.translatedTo ? (
                                   <>
                                     <b>
-                                      {translateLang(responseMsg.translatedTo)}{" "}
+                                      {mapLangCode(responseMsg.translatedTo)}{" "}
                                       Translation:
                                     </b>
                                     <br />
@@ -114,59 +98,7 @@ const ChatInterface = () => {
               )}
             </div>
 
-            <div className="relative h-[150px] w-full rounded-4xl bg-indigo-100/55 px-5 pt-6 pb-16 shadow-md">
-              <form onSubmit={handleSend}>
-                <div className="ml-auto flex w-full max-w-2xl items-center">
-                  <div
-                    className="max-h-[100px] flex-1 overflow-auto rounded-full bg-indigo-100 p-4 px-10 text-gray-700 focus:outline-none"
-                    contentEditable="true"
-                    rows="2"
-                    onInput={handleInputText}
-                    onKeyDown={handleKeyDown}
-                    onPaste={(e) => {
-                      e.preventDefault();
-                      const text = e.clipboardData.getData("text/plain");
-                      document.execCommand("insertText", false, text);
-                    }}
-                    ref={inputRef}
-                  ></div>
-
-                  <motion.button
-                    whileTap={{ scale: 0.97 }}
-                    className="ml-2 rounded-full bg-indigo-600 p-3 text-white"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z"
-                        fill="white"
-                      />
-                    </svg>
-                  </motion.button>
-                </div>
-
-                <div className="absolute bottom-3 left-10 flex items-center gap-4">
-                  <SelectButton
-                    selectedOption={selectedLangOption}
-                    setSelectedOption={setSelectedLangOption}
-                  />
-                  {lastUserMessage && canTranslate && (
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => translate(lastUserMessage.id)}
-                      className="border border-indigo-500 px-2 py-2 text-sm text-indigo-500"
-                    >
-                      Translate
-                    </motion.button>
-                  )}
-                </div>
-              </form>
-            </div>
+            <FormArea />
           </div>
         </div>
       </section>

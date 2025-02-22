@@ -7,7 +7,7 @@ export const getLastResponseMessage = (messages) => {
   return [...messages].reverse().find((msg) => msg.type === "response") || null;
 };
 
-export const translateLang = (language) => {
+export const mapLangCode = (language) => {
   const languageNames = new Intl.DisplayNames(["en"], { type: "language" });
   return languageMap[language] || languageNames.of(language);
 };
