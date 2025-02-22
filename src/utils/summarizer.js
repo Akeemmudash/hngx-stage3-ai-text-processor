@@ -8,7 +8,7 @@ const summarizer = async () => {
   const available = (await self.ai.summarizer.capabilities()).available;
   let summarizerObject;
   if (available === "no") {
-    return;
+    throw new Error("Summary not available on this device");
   }
   if (available === "readily") {
     summarizerObject = await self.ai.summarizerObject.create(options);

@@ -4,7 +4,7 @@ const detector = async (inputText) => {
   const canDetect = languageDetectorCapabilities.capabilities;
   let detector;
   if (canDetect === "no") {
-    return;
+    throw new Error("Language detection not available on this device");
   }
   if (canDetect === "readily") {
     detector = await self.ai.languageDetector.create();

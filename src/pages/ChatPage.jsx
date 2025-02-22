@@ -16,15 +16,15 @@ const ChatInterface = () => {
   const responseMsgs = messages.filter((msg) => msg.type === "response");
   const formerLangSelection = useRef(selectedLangOption);
   const inputRef = useRef(null);
+  const inputEl = inputRef.current;
 
   const lastUserMessage = getLastUserMessage(messages);
-  console.log("lastUserMessage", lastUserMessage);
   const lastResponseMessage = getLastResponseMessage(messages);
-  console.log("lastResponseMessage", lastResponseMessage);
   const languageDetected = lastUserMessage?.detectedLanguage;
 
   const shouldTranslate =
-    languageDetected !== selectedLangOption ||
+    inputEl?.textContent === "" &&
+    languageDetected !== selectedLangOption &&
     formerLangSelection.current !== selectedLangOption;
 
   const handleMessage = (msg) => setMessages((prev) => [...prev, msg]);
@@ -74,10 +74,8 @@ const ChatInterface = () => {
 
   const processMessage = async (processFn, userMsgID) => {
     try {
-      if (!shouldTranslate) return;
       handleMessage(new ResponseMessage("", "", userMsgID, "loading"));
       const result = await processFn();
-      console.log("result", result);
       updateLoadingMessage({
         ...new ResponseMessage(result, selectedLangOption, userMsgID, "ready"),
       });
@@ -109,8 +107,10 @@ const ChatInterface = () => {
   const summarize = async () => {
     if (!lastUserMessage) return;
     processMessage(async () => {
-      const summarizerFn = await summarizer();
-      return await summarizerFn.summarize();
+      const summarizerObject = await summarizer();
+      console.log("summarizerObject", summarizerObject);
+
+      return await summarizerObject.summarize(lastUserMessage.text);
     }, lastUserMessage.id);
   };
 
@@ -130,7 +130,7 @@ const ChatInterface = () => {
                   (msg) =>
                     msg.type === "user" && (
                       <div key={msg.id} className="space-y-6">
-                        <div className="ml-auto max-w-1/2" key={msg.id}>
+                        <div className="ml-auto md:max-w-1/2" key={msg.id}>
                           <div
                             className={
                               "relative my-2 rounded-xl bg-indigo-500 p-4 text-white"
@@ -146,7 +146,7 @@ const ChatInterface = () => {
                               </time>
                             )}
                           </div>
-                          <p className="inline-block rounded-xl bg-indigo-100 px-2 py-2 text-sm text-indigo-400">
+                          <p className="inline-block rounded-xl bg-indigo-100 px-2 py-2 text-xs text-indigo-400 md:text-sm">
                             Detected language:{" "}
                             <span className="font-medium">
                               {msg.detectedLanguage !== ""
@@ -158,7 +158,8 @@ const ChatInterface = () => {
                             <motion.button
                               whileTap={{ scale: 0.97 }}
                               onClick={() => summarize()}
-                              className="ms-4 border border-indigo-500 px-2 py-2 text-sm text-indigo-500"
+                              whileHover={{ scale: 1.05 }}
+                              className="ms-2 px-2 py-2 text-sm text-indigo-500 md:ms-4"
                             >
                               summarize
                             </motion.button>
