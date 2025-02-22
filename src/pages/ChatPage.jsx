@@ -17,7 +17,7 @@ const ChatInterface = () => {
             AI Text Processor
           </h1>
 
-          <div className="mt-auto flex flex-1 flex-col gap-5 md:gap-10">
+          <div className="mt-auto flex flex-1 flex-col gap-5 md:gap-8">
             <div
               ref={chatContainerRef}
               className="chat-area max-h-[calc(100vh-300px)] flex-1 space-y-20 overflow-y-auto rounded-2xl bg-white p-8 shadow-md"

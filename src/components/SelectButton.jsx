@@ -48,7 +48,7 @@ const SelectButton = ({ selectedOption, setSelectedOption }) => {
   return (
     <div className="relative inline-block" ref={selectRef}>
       <button
-        className="not-even: flex items-center justify-between rounded-full bg-indigo-400 px-4 py-2 text-white shadow-md hover:bg-indigo-400/75"
+        className="not-even: flex items-center justify-between rounded-full bg-indigo-400 px-4 py-2 text-white shadow-md hover:bg-indigo-500"
         onClick={toggleSelect}
       >
         {languageMap[selectedOption]}

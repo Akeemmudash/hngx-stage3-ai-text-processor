@@ -15,11 +15,14 @@ const FormArea = () => {
     lastUserMessage,
   } = useChatContext();
   return (
-    <div className="relative min-h-[150px] w-full rounded-4xl bg-indigo-100/55 px-5 pt-4 pb-16 shadow-md">
-      <form onSubmit={handleSend}>
+    <div className="relative mt-auto w-full rounded-4xl bg-indigo-100/55 px-5 py-4 shadow-md">
+      <form
+        onSubmit={handleSend}
+        className="flex flex-row-reverse flex-wrap gap-4"
+      >
         <div className="ml-auto flex w-full max-w-2xl items-center">
           <div
-            className="max-h-[100px] flex-1 overflow-auto rounded-full bg-indigo-100 p-4 px-10 text-gray-700 focus:outline-none"
+            className="max-h-[90px] flex-1 overflow-auto rounded-full bg-indigo-100 px-10 py-3 text-gray-700 focus:outline-none md:max-h-[130px] lg:py-4"
             contentEditable="true"
             rows="2"
             onInput={handleInputText}
@@ -51,7 +54,7 @@ const FormArea = () => {
           </motion.button>
         </div>
 
-        <div className="absolute bottom-3 left-10 flex items-center gap-4">
+        <div className="mr-auto inline-flex items-center gap-4">
           <SelectButton
             selectedOption={selectedLangOption}
             setSelectedOption={setSelectedLangOption}
