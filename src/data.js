@@ -6,3 +6,5 @@ export const languageMap = {
   tr: "Turkish",
   fr: "French",
 };
+
+export const MINIMUM_WORD_SUMMARY = 150;

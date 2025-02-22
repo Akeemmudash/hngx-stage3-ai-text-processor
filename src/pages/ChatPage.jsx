@@ -1,118 +1,29 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import SelectButton from "../components/SelectButton";
 import { motion } from "framer-motion";
 import astronaut from "../assets/astronaut.svg";
-import { detector } from "../utils/detector";
-import { translator } from "../utils/translator";
-import { summarizer } from "../utils/summarizer";
-import { getLastUserMessage, translateLang } from "../utils/helpers";
-import { UserMessage, ResponseMessage } from "../utils/message";
-import { getLastResponseMessage } from "../utils/helpers";
+
+import { translateLang } from "../utils/helpers";
+import { useScrollToMessage } from "../hooks/useScrollToMessage";
+import useProcessMessage from "../hooks/useProcessMessage";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState("");
-  const [selectedLangOption, setSelectedLangOption] = useState("en");
+  const {
+    summarize,
+    translate,
+    handleInputText,
+    handleSend,
+    handleKeyDown,
+    selectedLangOption,
+    setSelectedLangOption,
+    inputRef,
+    canTranslate,
+    canSummarize,
+    lastUserMessage,
+  } = useProcessMessage(messages, setMessages);
   const responseMsgs = messages.filter((msg) => msg.type === "response");
-  const formerLangSelection = useRef(selectedLangOption);
-  const inputRef = useRef(null);
-  const inputEl = inputRef.current;
-
-  const lastUserMessage = getLastUserMessage(messages);
-  const lastResponseMessage = getLastResponseMessage(messages);
-  const languageDetected = lastUserMessage?.detectedLanguage;
-
-  const shouldTranslate =
-    inputEl?.textContent === "" &&
-    languageDetected !== selectedLangOption &&
-    formerLangSelection.current !== selectedLangOption;
-
-  const handleMessage = (msg) => setMessages((prev) => [...prev, msg]);
-
-  const updateMessage = (id, updates) => {
-    setMessages((prev) =>
-      prev.map((msg) => (msg.id === id ? { ...msg, ...updates } : msg)),
-    );
-  };
-  const updateLoadingMessage = (response) =>
-    setMessages((prev) =>
-      prev
-        .reverse()
-        .map((msg) =>
-          msg.status === "loading" ? { ...msg, ...response } : msg,
-        ),
-    );
-
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-
-    const newMessage = new UserMessage(inputText);
-    handleMessage(newMessage);
-    setInputText("");
-    if (inputRef.current) inputRef.current.textContent = "";
-
-    try {
-      const results = await detector(inputText);
-      const topResult = results?.[0];
-      updateMessage(newMessage.id, {
-        confidence: topResult?.confidence,
-        detectedLanguage: topResult?.detectedLanguage,
-      });
-      setSelectedLangOption("en");
-    } catch (err) {
-      console.error("Detection error:", err);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend(e);
-    }
-  };
-
-  const processMessage = async (processFn, userMsgID) => {
-    try {
-      handleMessage(new ResponseMessage("", "", userMsgID, "loading"));
-      const result = await processFn();
-      updateLoadingMessage({
-        ...new ResponseMessage(result, selectedLangOption, userMsgID, "ready"),
-      });
-      formerLangSelection.current = selectedLangOption;
-    } catch (error) {
-      console.error(error);
-      updateLoadingMessage(
-        new ResponseMessage(
-          error.message,
-          selectedLangOption,
-          userMsgID,
-          "error",
-        ),
-      );
-    }
-  };
-
-  const translate = async () => {
-    if (!lastUserMessage) return;
-    processMessage(async () => {
-      const translatorFn = await translator(
-        formerLangSelection.current,
-        selectedLangOption,
-      );
-      return await translatorFn.translate(lastUserMessage.text);
-    }, lastUserMessage.id);
-  };
-
-  const summarize = async () => {
-    if (!lastUserMessage) return;
-    processMessage(async () => {
-      const summarizerObject = await summarizer();
-      console.log("summarizerObject", summarizerObject);
-
-      return await summarizerObject.summarize(lastUserMessage.text);
-    }, lastUserMessage.id);
-  };
+  const chatContainerRef = useScrollToMessage(messages);
 
   return (
     <main className="flex h-screen min-h-[600px] bg-gray-100">
@@ -124,7 +35,10 @@ const ChatInterface = () => {
           </h1>
 
           <div className="mt-auto flex flex-1 flex-col gap-10">
-            <div className="chat-area max-h-[calc(100vh-300px)] flex-1 space-y-20 overflow-y-auto rounded-2xl bg-white p-8 shadow-md">
+            <div
+              ref={chatContainerRef}
+              className="chat-area max-h-[calc(100vh-300px)] flex-1 space-y-20 overflow-y-auto rounded-2xl bg-white p-8 shadow-md"
+            >
               {messages.length > 0 ? (
                 messages.map(
                   (msg) =>
@@ -154,7 +68,7 @@ const ChatInterface = () => {
                                 : "Loading"}
                             </span>
                           </p>
-                          {
+                          {canSummarize(msg.id) && (
                             <motion.button
                               whileTap={{ scale: 0.97 }}
                               onClick={() => summarize()}
@@ -163,7 +77,7 @@ const ChatInterface = () => {
                             >
                               summarize
                             </motion.button>
-                          }
+                          )}
                         </div>
                         {responseMsgs
                           .filter((response) => response.userMsgID === msg.id)
@@ -207,7 +121,7 @@ const ChatInterface = () => {
                     className="max-h-[100px] flex-1 overflow-auto rounded-full bg-indigo-100 p-4 px-10 text-gray-700 focus:outline-none"
                     contentEditable="true"
                     rows="2"
-                    onInput={(e) => setInputText(e.target.textContent)}
+                    onInput={handleInputText}
                     onKeyDown={handleKeyDown}
                     onPaste={(e) => {
                       e.preventDefault();
@@ -241,7 +155,7 @@ const ChatInterface = () => {
                     selectedOption={selectedLangOption}
                     setSelectedOption={setSelectedLangOption}
                   />
-                  {lastUserMessage && shouldTranslate && (
+                  {lastUserMessage && canTranslate && (
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       onClick={() => translate(lastUserMessage.id)}
